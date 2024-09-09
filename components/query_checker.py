@@ -1,5 +1,18 @@
-from haystack import component
+import os
+import sys
 
+import instructor
+from haystack import component
+from openai import OpenAI
+from pydantic import BaseModel
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+
+from model.query_llm import model_response
+from database.postgres import PostgresDB
+from types import QueryCheckerResponseModel
+from prompts import import create_query_checker_prompt
 
 @component
 class QueryChecker:
@@ -8,17 +21,7 @@ class QueryChecker:
     Else, forward the query to the next component.
     """
 
-    @component.output_types(final_report=str, suggestion=str)
-    def run(self, report: str):
-        if self.is_valid_query(report):
-            return {"final_report": report, "suggestion": None}
-        else:
-            return {
-                "final_report": None,
-                "suggestion": "Please check your query and try again.",
-            }
-
-    def is_valid_query(self, report: str) -> bool:
-        # Add logic here to validate the query
-        # For now, we assume the query is always valid
-        return True
+    @component.output_types(valid=str, )
+    def run(self, db_output: str, query: str, natural_language: str):
+        response_check = model_response(response_model_class=QueryCheckerResponseModel, prompt=create_query_checker_prompt(db_output=db_output, db_query=query, user_prompt=natural_language))
+        

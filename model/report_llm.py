@@ -1,3 +1,4 @@
+
 import os
 
 import google.generativeai as genai
@@ -7,13 +8,9 @@ from pydantic import BaseModel, Field
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-class QueryFormat(BaseModel):
-    query: str = Field(None, alias="Postgres Query.")
-    suggestion: str = Field(
-        None,
-        alias="Suggest any changes that can be made to the query. Return None if there are no suggestions.",
-    )
-
+class Report(BaseModel):
+    report: str = Field(None, alias="Report.")
+    
 
 def model_response(query: str):
 

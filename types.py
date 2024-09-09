@@ -2,7 +2,6 @@ import pydantic
 
 
 class QueryProcessorResponseModel(pydantic.BaseModel):
-    user_prompt: str
     database_query: str
 
 

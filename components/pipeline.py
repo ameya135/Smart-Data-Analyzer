@@ -7,35 +7,38 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from components import query_processor, query_checker
+from components.query_checker import QueryChecker
+from components.query_processor import QueryProcessor
+from components.report_generator import ReportGenerator
 from haystack.components.converters import OutputAdapter
 
 
 class pipeline:
 
-    adaptor = OutputAdapter()
     query_processor = QueryProcessor()
     query_checker = QueryChecker()
-
+    report_generator = ReportGenerator()
     query_pipeline = Pipeline()
     query_pipeline.add_component("query_processor", query_processor)
     query_pipeline.add_component("query_checker", query_checker)
+    query_pipeline.add_component("report_generator", report_generator)
     query_pipeline.connect(
-        sender="query_processor.report", receiver="query_checker.report"
+        sender="query_processor.db_output", receiver="query_checker.report"
     )
     query_pipeline.connect(
-        sender="query_checker.suggestion", receiver="query_processor.query"
+        sender="query_checker.suggestion", receiver="query_processor.natural_language"
     )
 
-    def query_run(self, query):
-        result = self.query_pipeline.run({"query_processor": {"query": query}})
+    def query_run(self, natural_language: str):
+        result = self.query_pipeline.run({"query_processor.natural_language": natural_language})
         return result
 
 
 if name == "__main__":
     pipeline = pipeline()
-    print(
-        pipeline.query_run(
-            "I want the names of all employees that have minimum salary of 199999 and order them by their city name."
-        )
-    )
+    pipeline.draw(path="pipeline.png")
+    #print(
+    #    pipeline.query_run(
+    #        "I want the names of all employees that have minimum salary of 199999 and order them by their city name."
+    #    )
+    #)

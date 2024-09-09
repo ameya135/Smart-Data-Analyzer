@@ -1,18 +1,18 @@
 import os
 import sys
-
+from typing import Optional
 import instructor
 from haystack import component
 from openai import OpenAI
 from pydantic import BaseModel
 
-from model.llm import model_response
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-class QueryFormat(BaseModel):
-    query: str
+from model.query_llm import model_response
+from database.postgres import PostgresDB
+from types import QueryProcessorResponseModel
+from prompts import import create_query_processor_prompt
 
 
 @component
@@ -25,12 +25,19 @@ class QueryProcessor:
         user_query: str
     """
 
-    client = instructor.from_openai(
-        OpenAI(api_key="ollama", base_url="http://localhost:11434/v1"),
-        mode=instructor.Mode.JSON,
+    client = instructor.from_gemini(
+        client=genai.GenerativeModel(
+            model_name="models/gemini-1.5-flash-latest",
+        ),
+        mode=instructor.Mode.GEMINI_JSON,
     )
 
-    @component.output_types(report=str)
-    def run(self, query: str):
-        report = model_response(query)
-        return {"report": report}
+
+    @component.output_types(db_output=str, query=str, natural_language=str)
+    def run(self, natural_language: str, valid: Optional[bool] = None):
+        if valid is not False:
+            query = model_response(response_model_class=QueryProcessorResponseModel, prompt=create_query_processor_prompt(natural_language))
+            with PostgresDB() as db:
+                db_output = db.run_sql(query)
+
+        return {"db_output": db_output, "query": query, "natural_language": natural_language}
