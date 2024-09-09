@@ -15,7 +15,7 @@ def connect_to_db():
     return db
 
 
-def create_query_processor_prompt(user_prompt: str):
+def create_query_processor_prompt_initial(user_prompt: str):
     """
     Description: Create a prompt for the user to input a query
     Args:
@@ -35,6 +35,29 @@ def create_query_processor_prompt(user_prompt: str):
     You need to return the query that will satisfy the user prompt.
     The database being used is a PostgreSQL database.
     """
+
+
+def create_query_processor_prompt_not_valid(user_prompt: str, db_query: str):
+    """
+    Description: Create a prompt for the user to input a query
+    Args:
+        user_prompt (str): The prompt for the user to input
+    Output:
+        prompt (str) : The prompt for the user to input a query
+    """
+    db = connect_to_db()
+    table_details = db.get_all_table_details()
+    return f"""
+    You have provided an invalid or unrelated query for the specified user prompt. 
+    Please review and correct the query based on the details of the table and the user prompt provided.
+    Table Details:\n
+            {table_details}\n
+    User Prompt:
+            {user_prompt}\n
+    Incorrect Query:
+            {db_query}\n
+   The database being used is PostgreSQL. Correct the query to align with the provided table structure and the user's requirements.
+   Ensure proper syntax, accurate column names, and appropriate query logic. """
 
 
 def create_query_checker_prompt(user_prompt: str, db_query: str, db_output: str):
