@@ -1,59 +1,56 @@
-from haystack import Document, Pipeline
-from haystack.document_stores.in_memory import InMemoryDocumentStore
+import os
+import sys
+
+from haystack import Pipeline
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack.components.retrievers.in_memory import InMemoryEmbeddingRetriever
-import sys
-import os
+from haystack.components.routers import ConditionalRouter
+from haystack.document_stores.in_memory import InMemoryDocumentStore
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from haystack.components.converters import OutputAdapter
 
 from components.query_checker import QueryChecker
 from components.query_processor import QueryProcessor
 from components.report_generator import ReportGenerator
-from haystack.components.converters import OutputAdapter
 
+# Router configuration
+routes = [
+    {
+        "condition": "{{valid}}",
+        "output": "{{query_checker.response}",
+        "output_name": "valid_query",
+        "output_type": str,
+    },
+    {
+        "condition": "{{not valid}",
+        "output": "{{query_checker.response}}",
+        "output_name": "valid_query",
+        "output_type": str,
+    },
+]
 
-class pipeline:
+router = ConditionalRouter(routes=routes)
+query_processor = QueryProcessor()
+query_checker = QueryChecker()
+report_generator = ReportGenerator()
+query_pipeline = Pipeline()
+query_pipeline.add_component("router", router)
+query_pipeline.add_component("query_processor", query_processor)
+query_pipeline.add_component("query_checker", query_checker)
+query_pipeline.add_component("report_generator", report_generator)
+query_pipeline.connect(
+    sender="query_processor.db_output", receiver="query_checker.report"
+)
+query_pipeline.connect(
+    sender="query_checker.suggestion", receiver="query_processor.natural_language"
+)
 
-    routes = [
-        {
-            "condition": "{valid}",
-            "output": "{query_checker.response}",
-            "output_name": "{valid_query}",
-            "output_type": str,
-        },
-        {
-            "condition": "{invalid}",
-            "output": "{query_checker.response}",
-            "output_name": "{valid_query}",
-            "output_type": str,
+if __name__ == "__main__":
+    pipeline = Pipeline()
 
-        }
-    ]
-    query_processor = QueryProcessor()
-    query_checker = QueryChecker()
-    report_generator = ReportGenerator()
-    query_pipeline = Pipeline()
-    query_pipeline.add_component("query_processor", query_processor)
-    query_pipeline.add_component("query_checker", query_checker)
-    query_pipeline.add_component("report_generator", report_generator)
-    query_pipeline.connect(
-        sender="query_processor.db_output", receiver="query_checker.report"
-    )
-    query_pipeline.connect(
-        sender="query_checker.suggestion", receiver="query_processor.natural_language"
-    )
-
-    def query_run(self, natural_language: str):
-        result = self.query_pipeline.run({"query_processor.natural_language": natural_language})
-        return result
-
-
-if name == "__main__":
-    pipeline = pipeline()
-    pipeline.draw(path="pipeline.png")
-    #print(
-    #    pipeline.query_run(
-    #        "I want the names of all employees that have minimum salary of 199999 and order them by their city name."
-    #    )
-    #)
+    payload = {
+        "natural_language": "Sales data from October 2023 to December 2023",
+    }
+    print(pipeline.run(data=payload))
