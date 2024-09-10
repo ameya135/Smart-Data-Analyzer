@@ -15,6 +15,21 @@ from haystack.components.converters import OutputAdapter
 
 class pipeline:
 
+    routes = [
+        {
+            "condition": "{valid}",
+            "output": "{query_checker.response}",
+            "output_name": "{valid_query}",
+            "output_type": str,
+        },
+        {
+            "condition": "{invalid}",
+            "output": "{query_checker.response}",
+            "output_name": "{valid_query}",
+            "output_type": str,
+
+        }
+    ]
     query_processor = QueryProcessor()
     query_checker = QueryChecker()
     report_generator = ReportGenerator()
