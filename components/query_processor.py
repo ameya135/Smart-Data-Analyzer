@@ -1,16 +1,16 @@
 import os
 import sys
 from typing import Optional
-
+import pydantic
 import instructor
 from haystack import component
 from openai import OpenAI
 from pydantic import BaseModel
+import google.generativeai as genai
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-from types import QueryProcessorResponseModel
 
 from database.postgres import PostgresDB
 from model.query_llm import model_response
@@ -19,6 +19,9 @@ from prompts import (
     create_query_processor_prompt_not_valid,
 )
 
+
+class QueryProcessorResponseModel(pydantic.BaseModel):
+    database_query: str
 
 @component
 class QueryProcessor:

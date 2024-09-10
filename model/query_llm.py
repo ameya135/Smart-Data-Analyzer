@@ -16,7 +16,7 @@ def model_response(response_model_class: str, prompt: str):
         mode=instructor.Mode.GEMINI_JSON,
     )
     completion = client.messages.create(
-        response_model=response_model_class
+        response_model=response_model_class,
         messages=[
             {
                 "role": "user",

@@ -47,10 +47,8 @@ query_pipeline.connect(
     sender="query_checker.suggestion", receiver="query_processor.natural_language"
 )
 
-if __name__ == "__main__":
-    pipeline = Pipeline()
 
-    payload = {
-        "natural_language": "Sales data from October 2023 to December 2023",
-    }
-    print(pipeline.run(data=payload))
+payload = {
+    "natural_language": "Sales data from October 2023 to December 2023",
+}
+print(query_pipeline.run(data=payload))

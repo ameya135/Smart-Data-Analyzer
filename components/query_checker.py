@@ -1,5 +1,6 @@
 import os
 import sys
+import pydantic
 
 import instructor
 from haystack import component
@@ -9,12 +10,17 @@ from pydantic import BaseModel
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-from types import QueryCheckerResponseModel
 
 from database.postgres import PostgresDB
 from model.query_llm import model_response
 from prompts import create_query_checker_prompt
 
+
+class QueryCheckerResponseModel(pydantic.BaseModel):
+    user_prompt: str
+    database_query: str
+    database_output: str
+    isValid: bool
 
 @component
 class QueryChecker:
