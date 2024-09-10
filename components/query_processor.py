@@ -39,12 +39,13 @@ class QueryProcessor:
         mode=instructor.Mode.GEMINI_JSON,
     )
 
-    @component.output_types(db_output=str, query=str, natural_language=str)
+    @component.output_types(db_output=str, db_query=str, natural_language=str)
     def run(
         self,
         natural_language: str,
         db_query: Optional[str] = None,
         valid: Optional[bool] = None,
+        db_output: Optional[str] = None
     ):
         try:
             prompt = create_query_processor_prompt_initial(natural_language)
@@ -54,7 +55,7 @@ class QueryProcessor:
                     natural_language, db_query
                 )
 
-            query = model_response(
+            db_query = model_response(
                 response_model_class=QueryProcessorResponseModel,
                 prompt=prompt,
             ).database_query
@@ -66,7 +67,7 @@ class QueryProcessor:
 
             return {
                 "db_output": db_output,
-                "query": query,
+                "query": db_query,
                 "natural_language": natural_language,
             }
         except Exception as e:

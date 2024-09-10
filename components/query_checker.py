@@ -29,12 +29,12 @@ class QueryChecker:
     Else, forward the query to the next component.
     """
 
-    @component.output_types(valid=str, response=str, db_response=str)
-    def run(self, db_output: str, query: str, natural_language: str):
+    @component.output_types(valid=str, db_output=str, db_query=str, natural_language=str)
+    def run(self, db_output: str, db_query: str, natural_language: str):
         response_check = model_response(
             response_model_class=QueryCheckerResponseModel,
             prompt=create_query_checker_prompt(
-                db_output=db_output, db_query=query, user_prompt=natural_language
+                db_output=db_output, db_query=db_query, user_prompt=natural_language
             ),
         )
         return {

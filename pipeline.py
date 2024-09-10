@@ -48,15 +48,19 @@ query_pipeline.add_component("router", router)
 query_pipeline.connect(
     sender="query_processor.db_output", receiver="query_checker.db_output"
 )
-query_pipeline.connect(sender="query_processor.query", receiver="query_checker.query")
+query_pipeline.connect(sender="query_processor.db_query", receiver="query_checker.db_query")
 query_pipeline.connect(
     sender="query_processor.natural_language", receiver="query_checker.natural_language"
 )
-query_pipeline.connect("router.valid_query", "report_generator.query")
+query_pipeline.connect("router.valid_query", "report_generator.db_output")
 query_pipeline.connect("router.invalid_query", "query_processor.db_query")
+query_pipeline.connect(sender="query_checker.valid", receiver="router")
 query_pipeline.connect(
     sender="router.invalid_query", receiver="query_processor.natural_language"
 )
+query_pipeline.connect(sender="router.invalid_query", receiver="query_processor.db_query")
+
+query_pipeline.connect(sender="router.invalid_query", receiver="query_processor.db_output")
 
 payload = {
     "natural_language": "Sales data from October 2023 to December 2023",
@@ -67,7 +71,7 @@ payload = {
 
 def run_pipeline(payload):
     result = query_pipeline.run(data=payload)
-    query_pipeline.draw(path="pipeline.png")
+    query_pipeline.draw(path="pipeline_try.png")
     print(result)
 
 

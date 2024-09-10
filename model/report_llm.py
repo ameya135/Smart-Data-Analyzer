@@ -1,4 +1,3 @@
-
 import os
 
 import google.generativeai as genai
@@ -7,12 +6,7 @@ from pydantic import BaseModel, Field
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-
-class Report(BaseModel):
-    report: str = Field(None, alias="Report.")
-    
-
-def model_response(query: str):
+def report_model_response(report_prompt: str, response_model_class: str):
 
     client = instructor.from_gemini(
         client=genai.GenerativeModel(
@@ -21,11 +15,11 @@ def model_response(query: str):
         mode=instructor.Mode.GEMINI_JSON,
     )
     completion = client.messages.create(
-        response_model=QueryFormat,
+        response_model=response_model_class,
         messages=[
             {
                 "role": "user",
-                "content": f"I want the postgres query for the given statement: {query}",
+                "content": report_prompt,
             },
         ],
         temperature=0.7,

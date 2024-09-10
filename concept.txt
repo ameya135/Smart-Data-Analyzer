@@ -1,6 +1,0 @@
-cassandra db and postgres
-llm gives db query
-another node checks query
-if incorrect then loop
-else feed query into db
-
