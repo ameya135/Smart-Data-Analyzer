@@ -1,4 +1,3 @@
-
 import os
 import sys
 
@@ -10,8 +9,8 @@ from pydantic import BaseModel
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-from model.query_llm import model_response
 from database.postgres import PostgresDB
+from model.query_llm import model_response
 
 
 class QueryFormat(BaseModel):
@@ -34,9 +33,6 @@ class ReportGenerator:
     )
 
     @component.output_types(db_output=str)
-    def run(self, natural_language: str):
-        query = model_response(natural_language)
-        with PostgresDB() as db:
-            db_output = db.run_sql(query)
+    def run(self, query: str):
 
-        return {"db_output": db_output}
+        return {"query": query}

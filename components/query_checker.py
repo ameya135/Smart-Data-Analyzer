@@ -1,14 +1,13 @@
 import os
 import sys
-import pydantic
 
 import instructor
+import pydantic
 from haystack import component
 from openai import OpenAI
 from pydantic import BaseModel
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 
 
 from database.postgres import PostgresDB
@@ -21,6 +20,7 @@ class QueryCheckerResponseModel(pydantic.BaseModel):
     database_query: str
     database_output: str
     isValid: bool
+
 
 @component
 class QueryChecker:
