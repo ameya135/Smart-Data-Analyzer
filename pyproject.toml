@@ -18,9 +18,12 @@ litellm = "^1.43.7"
 ollama = "^0.3.1"
 google = "^3.0.0"
 google-generativeai = "^0.7.2"
-psycopg2 = "^2.9.9"
 pymysql = "^1.1.1"
 pymongo = "^4.8.0"
+vllm = "^0.6.3.post1"
+openai = "^1.53.0"
+tqdm = "^4.67.0"
+pytest = "^8.3.3"
 
 
 [tool.poetry.group.dev.dependencies]
